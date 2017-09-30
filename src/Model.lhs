@@ -26,8 +26,11 @@ the environment contains the value of captured Variables in that scope
 >              deriving Eq
 
 Lambda expressions are defined trivially as an algebraic datatype.
+TODO: This could be much more modular, for instance Names should be
+parametric, not Strings..
+TODO: implement some built-in stuff
 
-Todo: implement some built-in  stuff
+
 
 > --deriving instance Show (LambExp)
 > 
@@ -35,7 +38,7 @@ Todo: implement some built-in  stuff
 >   show = show2
 > show2 (Var n) = n
 > show2 (Abs x t) = "(" ++ "λ" ++ x ++ "." ++ show2 t ++ ")"
-> show2 (App t v) =  show2 t ++ " " ++ show2 v
+> show2 (App t v) =  "(" ++ show2 t ++ " " ++ show2 v ++ ")"
 
 
 > subst :: Env -> LambExp -> LambExp
@@ -79,4 +82,9 @@ neg: (λb.b F T) → (λb.b (λt.(λf.f)) (λt.(λf.t)))
 
 
 > zero = Abs "f" (Abs "x" (Var "x"))
-> succ = undefined
+> suc
+>   = Abs "n"
+>     (Abs "f"
+>       (Abs "x" (App (Var "f")(
+>                 (App (App (Var "n") (Var "f")) (Var "x"))))))
+
