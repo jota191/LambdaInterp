@@ -8,6 +8,7 @@ License: GPLv3
 > module Model where
 > import qualified Data.Map.Strict as Map
 > import Data.Maybe
+> import System.IO.Unsafe
 
 > type Name = String
 
@@ -112,7 +113,8 @@ top level environment)
 >     in case s of
 >          [] -> (Abs x v, e, s)
 >          _  -> (t, enew, snew)
-
+> excStep (Print str,e,s) = ( unsafePerformIO (putStr str
+>                             >>return (Abs "x" (Var "x"))),e,s)
 
 > reduce :: (Term, Env, Stack) -> Term
 > reduce s@(t,e,st)
