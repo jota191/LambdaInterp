@@ -3,12 +3,15 @@ A model for Un(yet)-typed Lambda calculus
 Juan García Garland (Nov. 2016)
 License: GPLv3
 
-> {-# LANGUAGE StandaloneDeriving #-}
+> {-# LANGUAGE StandaloneDeriving,
+>              UnicodeSyntax #-}
 
 > module Model where
 > import qualified Data.Map.Strict as Map
 > import Data.Maybe
 > import System.IO.Unsafe
+> import Unicode
+
 
 > type Name = String
 
@@ -19,8 +22,8 @@ There are more posibilities such that use De Brujin indexes.
 
 An environment is a Mapping from Names to Closures.
 
-> data Closure = Closure { getTerm :: LambExp,
->                          getEnv  :: Env}
+> data Closure = Closure { getTerm ∷ LambExp,
+>                          getEnv  ∷ Env}
 >              deriving (Eq,Show)
 
 > type Stack = [Closure]
@@ -79,7 +82,7 @@ When the machine reduces it searches for the pattern with the
 scheme λx1...xn t where t is not an abstraction.
 We define a function to collect all the variables and return t
 
-> rmAbs :: Term -> ([Name], Term)
+> rmAbs :: Term → ([Name], Term)
 > rmAbs (Abs x t) = ((x:vs), u)
 >   where (vs, u) = rmAbs t
 > rmAbs (Var x)   = ([],Var x)
@@ -92,16 +95,22 @@ For each parameter x in the lambda term (that we extracted with
 rmAbs, pop a closure (t,e) from the stack, and put x = (t,e) in the
 top level environment)
 
-> updateEnv :: [Name] -> Env -> Stack -> (Env,Stack)
-> updateEnv []     e s = (e,s)
+> updateEnv ∷ [Name] → Env → Stack → (Env,Stack)
+> updateEnv [] e s
+>   = (e,s)
 > updateEnv (x:xs) e (te:s)
 >   = updateEnv xs (Map.insert x te e) s
 > updateEnv _ e []
 >   = (e,[])
 
+
+
 > type MachineState = (Term, Env, Stack)
 
-> excStep :: (Term, Env, Stack) -> (Term, Env, Stack)
+
+With this function, we excecute one step in the machine:
+
+> excStep ∷ (Term, Env, Stack) → (Term, Env, Stack)
 > excStep (App u v, e, s)
 >   = (u, e, (Closure v e):s)
 > excStep (Var x,   e, s)
@@ -111,23 +120,27 @@ top level environment)
 >   = let (varlist,t) = rmAbs (Abs x v)
 >         (enew,snew) = updateEnv varlist e s
 >     in case s of
->          [] -> (Abs x v, e, s)
->          _  -> (t, enew, snew)
+>          [] → (Abs x v, e, s)
+>          _  → (t, enew, snew)
 > excStep (Print str,e,s) = ( unsafePerformIO (putStr str
->                             >>return (Abs "x" (Var "x"))),e,s)
+>                             >> return (Abs "x" (Var "x"))),e,s)
 
-> reduce :: (Term, Env, Stack) -> Term
+> reduce ∷ (Term, Env, Stack) → Term
 > reduce s@(t,e,st)
 >   = let s' = excStep s
->     in if s == s'
+>     in if s ≡ s'
 >        then t
 >        else reduce s'
 
 
-> reduceN :: Int -> (Term, Env, Stack) -> (Term, Env, Stack)
+> reduceN ∷ Int → (Term, Env, Stack) → (Term, Env, Stack)
 > reduceN 0 s@(t,e,st)
 >   = s
 
 > reduceN n s@(t,e,st)
 >   = let s' = excStep s
 >     in reduceN (n-1) s'
+
+
+
+
