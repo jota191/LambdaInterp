@@ -142,5 +142,8 @@ With this function, we excecute one step in the machine:
 >     in reduceN (n-1) s'
 
 
+> evaluate ∷ Term → Term
+> evaluate t = reduce (t, Map.empty, [])
+
 
 
