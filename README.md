@@ -1,3 +1,3 @@
 # LambdaInterp
 
-An implementation of untyped lambda calculus.
+An implementation of (by now) untyped lambda calculus.
